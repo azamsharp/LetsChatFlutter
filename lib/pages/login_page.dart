@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lets_chat/pages/main_page.dart';
+import 'package:lets_chat/pages/room_list_page.dart';
 import 'package:lets_chat/view_models/login_view_model.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,21 +13,22 @@ class _LoginPage extends State<LoginPage> {
   final _loginVM = LoginViewModel();
   final _usernameController = TextEditingController();
 
-  void _login() async {
-    
+  void _login(BuildContext context) async {
     final username = _usernameController.text;
-    
+
+    // check if username is not empty
     if (username.isEmpty) {
       setState(() {
         _message = "Username cannot be empty!";
       });
+    } else {
+      final isLoggedIn = await _loginVM.login(_usernameController.text);
+      if (isLoggedIn) {
+        // navigate to the chat rooms page
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => MainPage()));
+      }
     }
-
-    final isLoggedIn = await _loginVM.login(_usernameController.text);
-    if(isLoggedIn) {
-      // navigate to the chat rooms page 
-
-    } 
   }
 
   @override
@@ -48,7 +51,9 @@ class _LoginPage extends State<LoginPage> {
         ),
         FlatButton(
             child: Text("Login"),
-            onPressed: _login,
+            onPressed: () {
+              _login(context);
+            },
             textColor: Colors.white,
             color: Colors.grey),
         Padding(
