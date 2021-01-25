@@ -1,17 +1,22 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Room {
 
-  final String title; 
-  final String description; 
+  String roomId; 
+  final String title;
+  final String description;
 
-  Room({this.title, this.description});
+  Room({this.roomId, this.title, this.description});
 
   Map<String, dynamic> toMap() {
-    return {
-      "title": title, 
-      "description": description
-    };
+    return {"title": title, "description": description};
   }
 
+  factory Room.fromDocument(QueryDocumentSnapshot doc) {
+    return Room(
+      roomId: doc.id,
+      title: doc["title"],
+      description: doc["description"],
+    );
+  }
 }

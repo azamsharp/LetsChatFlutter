@@ -14,7 +14,7 @@ class AddRoomViewModel extends ChangeNotifier {
     final room = Room(title: title, description: description); 
 
     try {
-      FirebaseFirestore.instance.collection("rooms") 
+      await FirebaseFirestore.instance.collection("rooms") 
        .add(room.toMap());
       isSaved = true; 
     } catch(e) {

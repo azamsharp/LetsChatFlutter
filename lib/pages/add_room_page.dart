@@ -21,7 +21,7 @@ class AddRoomPage extends StatelessWidget {
 
       final isSaved = await _addRoomVM.addRoom(title, description); 
       if(isSaved) {
-        Navigator.pop(context); 
+        Navigator.pop(context, isSaved); 
       }
 
     }
