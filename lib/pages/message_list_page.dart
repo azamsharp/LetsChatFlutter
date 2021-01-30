@@ -1,7 +1,7 @@
 
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:lets_chat/widgets/message.dart';
 import 'package:lets_chat/view_models/message_list_view_model.dart';
 import 'package:lets_chat/view_models/message_view_model.dart';
 import 'package:lets_chat/view_models/room_view_model.dart';
@@ -20,6 +20,7 @@ class MessageListPage extends StatefulWidget {
 class _MessageListPage extends State<MessageListPage> {
 
   MessageListViewModel _messageListVM; 
+  final _scrollController = ScrollController();
   final _messageTextController = TextEditingController(); 
   RoomViewModel room; 
 
@@ -29,13 +30,13 @@ class _MessageListPage extends State<MessageListPage> {
   void initState() {
     super.initState();
     room = widget.room; 
-
     _messageListVM = MessageListViewModel(room: room); 
-    _populateMessagesByRoom(widget.room); 
   }
 
-  void _populateMessagesByRoom(RoomViewModel room) {
-
+  void _scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+       duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn);
   }
 
   void _sendMessage(BuildContext context) async {
@@ -45,23 +46,20 @@ class _MessageListPage extends State<MessageListPage> {
     final username = sharedPreferences.get("username");
 
     if(messageText.isNotEmpty) {
-      final isSaved = await _messageListVM.sendMessage(room.roomId, messageText, username); 
-      if(isSaved) {
-        // the list will be updated automatically 
-      } 
+      await _messageListVM.sendMessage(room.roomId, messageText, username);  
+      // scroll to the bottom 
+      _scrollToBottom(); 
     }
   }
 
   Widget _buildMessageList(List<MessageViewModel> messages) {
     return Expanded(
-          child: ListView.builder(
+        child: ListView.builder(
+        controller: _scrollController,
         itemCount: messages.length, 
         itemBuilder: (context, index) {
           final message = messages[index]; 
-
-          return ListTile(
-            title: Text(message.messageText)
-          );
+          return Message(messageText: message.messageText, senderUserName: message.username); 
         },
       ),
     );
@@ -94,13 +92,10 @@ class _MessageListPage extends State<MessageListPage> {
                   return const Text("No data"); 
                 }
             }
-
+ 
             return _buildMessageList(snapshot.data); 
-          
-
           }
         ),
-        Spacer(),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Padding(

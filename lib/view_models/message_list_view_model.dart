@@ -20,6 +20,7 @@ class MessageListViewModel {
   void _subscribeToMessagesStream() {
     FirebaseFirestore.instance.collection("messages")
       .where("roomId", isEqualTo: room.roomId)
+      .orderBy("dateCreated", descending: false)
       .snapshots().listen((data) {
 
         final messages = data.docs.map((doc) => Message.fromDocument(doc)).toList(); 
@@ -32,7 +33,7 @@ class MessageListViewModel {
 
   Future<bool> sendMessage(String roomId, String messageText, String username) async {
 
-    final message = Message(roomId: roomId, messageText: messageText, username: username); 
+    final message = Message(roomId: roomId, messageText: messageText, username: username, dateCreated: DateTime.now()); 
     bool isSaved = false; 
 
     try {

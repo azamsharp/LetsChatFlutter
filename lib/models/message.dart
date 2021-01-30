@@ -9,14 +9,16 @@ class Message {
   String messageId; 
   final String messageText; 
   final String username; 
+  final DateTime dateCreated; 
 
-  Message({@required this.roomId, this.messageId, @required this.messageText, @required this.username}); 
+  Message({@required this.roomId, this.messageId, @required this.messageText, @required this.username, this.dateCreated}); 
 
   Map<String, dynamic> toMap() {
     return {
       "roomId": roomId, 
       "messageText": messageText, 
-      "username": username
+      "username": username, 
+      "dateCreated": dateCreated 
     };
   }
 
@@ -26,6 +28,7 @@ class Message {
       roomId: doc["roomId"],
       messageText: doc["messageText"],
       username: doc["username"],
+      dateCreated: doc["dateCreated"].toDate()
     );
   }
 
