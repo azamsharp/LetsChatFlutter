@@ -1,5 +1,7 @@
 
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lets_chat/widgets/message.dart';
 import 'package:lets_chat/view_models/message_list_view_model.dart';
@@ -33,10 +35,21 @@ class _MessageListPage extends State<MessageListPage> {
     _messageListVM = MessageListViewModel(room: room); 
   }
 
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); 
+    super.dispose(); 
+  }
+
   void _scrollToBottom() {
-    _scrollController.animateTo(
+
+    Timer(Duration(milliseconds: 500), () => {
+      _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
-       duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn);
+       duration: Duration(seconds: 1), curve: Curves.fastOutSlowIn)
+    });
+
   }
 
   void _sendMessage(BuildContext context) async {
@@ -46,13 +59,13 @@ class _MessageListPage extends State<MessageListPage> {
     final username = sharedPreferences.get("username");
 
     if(messageText.isNotEmpty) {
+      _messageTextController.clear(); 
       await _messageListVM.sendMessage(room.roomId, messageText, username);  
-      // scroll to the bottom 
-      _scrollToBottom(); 
     }
   }
 
   Widget _buildMessageList(List<MessageViewModel> messages) {
+
     return Expanded(
         child: ListView.builder(
         controller: _scrollController,
@@ -68,7 +81,7 @@ class _MessageListPage extends State<MessageListPage> {
   @override
   Widget build(BuildContext context) {
 
-    final room = widget.room; 
+    final room = widget.room;
 
     return Scaffold(
       appBar: AppBar(
@@ -80,6 +93,7 @@ class _MessageListPage extends State<MessageListPage> {
         StreamBuilder<List<MessageViewModel>>(
           stream: _messageListVM.messagesStream.stream, 
           builder: (context, snapshot) {
+
             if(snapshot.hasError) {
               return Text("Error: ${snapshot.error}"); 
             }
@@ -93,7 +107,9 @@ class _MessageListPage extends State<MessageListPage> {
                 }
             }
  
-            return _buildMessageList(snapshot.data); 
+            final messageList = _buildMessageList(snapshot.data); 
+            _scrollToBottom(); 
+            return messageList; 
           }
         ),
         Padding(
